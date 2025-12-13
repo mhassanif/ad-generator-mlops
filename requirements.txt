@@ -1,0 +1,9 @@
+pandas==2.2.0
+scikit-learn==1.4.0
+mlflow==2.10.0
+transformers==4.37.0
+torch==2.2.0
+jupyter
+pytest
+pylint
+black
