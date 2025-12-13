@@ -22,4 +22,17 @@ Automated system to generate marketing creatives (text) for e-commerce products 
    ```bash
    python src/data/ingest.py
    ```
+
+3. **Run Model Training**:
+   ```bash
+   python src/models/train.py --epochs 3
+   ```
+   > **Note**: Start the MLflow UI in a separate terminal with `mlflow ui` to view training metrics.
+
+4. **Verify Model**:
+   ```bash
+   python src/predict_test.py
+   ```
+
+
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/EsmaCwYg)
