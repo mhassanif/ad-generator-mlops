@@ -1,2 +1,6 @@
 *.csv
 venv
+mlruns/
+mlflow.db
+tokenizer_files/
+data/processed/
