@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mlflow-pvc
+  namespace: ad-creative-mlops
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mlflow
+  namespace: ad-creative-mlops
+spec:
+  serviceName: mlflow-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow
+  template:
+    metadata:
+      labels:
+        app: mlflow
+    spec:
+      containers:
+      - name: mlflow
+        image: ghcr.io/mlflow/mlflow:latest
+        ports:
+        - containerPort: 5000
+          name: http
+        command:
+          - mlflow
+          - server
+          - --host
+          - "0.0.0.0"
+          - --port
+          - "5000"
+          - --backend-store-uri
+          - sqlite:///mlflow/mlflow.db
+          - --default-artifact-root
+          - /mlflow/artifacts
+        volumeMounts:
+        - name: mlflow-storage
+          mountPath: /mlflow
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: mlflow-storage
+        persistentVolumeClaim:
+          claimName: mlflow-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-service
+  namespace: ad-creative-mlops
+spec:
+  selector:
+    app: mlflow
+  ports:
+  - port: 5000
+    targetPort: 5000
+    protocol: TCP
+  type: ClusterIP

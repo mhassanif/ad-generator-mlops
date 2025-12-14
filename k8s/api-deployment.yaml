@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  namespace: ad-creative-mlops
+  labels:
+    app: ad-creative-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ad-creative-api
+  template:
+    metadata:
+      labels:
+        app: ad-creative-api
+    spec:
+      containers:
+      - name: api
+        image: mhassif/ad-creative-api:latest
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: MLFLOW_TRACKING_URI
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: MLFLOW_TRACKING_URI
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+  namespace: ad-creative-mlops
+  labels:
+    app: ad-creative-api
+spec:
+  type: LoadBalancer
+  selector:
+    app: ad-creative-api
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+    name: http
