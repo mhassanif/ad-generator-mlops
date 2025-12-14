@@ -4,3 +4,13 @@ mlruns/
 mlflow.db
 tokenizer_files/
 data/processed/
+
+# Airflow & Docker
+logs/
+postgres-db-volume/
+mlflow-artifacts/
+*.log
+.dockerignore
+
+
+.env
