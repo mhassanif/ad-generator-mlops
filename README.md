@@ -199,3 +199,8 @@ for i in {1..10}; do curl -s -X POST "http://localhost:8000/predict" \
   -d '{"brand": "Nike", "product_name": "Shoes"}' > /dev/null; done
 # Check Explore view with: api_predictions_total
 ```
+---
+## Demo Video Link
+```
+https://drive.google.com/file/d/1gncMYUrAAUYqEy0Ws2HmVQk26HiK5RWw/view?usp=drive_link
+```
