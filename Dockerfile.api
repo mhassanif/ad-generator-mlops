@@ -21,7 +21,9 @@ RUN pip install --no-cache-dir \
     pydantic \ 
     mlflow \
     transformers==4.36.0 \
-    sentencepiece
+    sentencepiece \
+    prometheus-fastapi-instrumentator \
+    prometheus-client
 
 # Copy application code
 COPY src/ /app/src/

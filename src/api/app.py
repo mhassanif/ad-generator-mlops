@@ -1,11 +1,15 @@
 """
 FastAPI service for Ad Creative Generation
 Loads model from MLflow Model Registry and serves predictions
+With Prometheus metrics for monitoring
 """
 import os
 import logging
+import time
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import Counter, Histogram
 import mlflow
 import mlflow.pyfunc
 from transformers import T5Tokenizer, T5ForConditionalGeneration
@@ -20,6 +24,20 @@ app = FastAPI(
     title="E-Commerce Ad Creative Generator",
     description="Generate marketing creatives for e-commerce products",
     version="1.0.0"
+)
+
+# Initialize Prometheus metrics
+Instrumentator().instrument(app).expose(app)
+
+# Custom metrics
+prediction_counter = Counter(
+    'api_predictions_total',
+    'Total number of predictions made'
+)
+inference_duration = Histogram(
+    'model_inference_seconds',
+    'Time spent on model inference',
+    buckets=[0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
 )
 
 # Global variables for model and tokenizer
@@ -116,10 +134,16 @@ def predict(request: PredictRequest):
     if model is None or tokenizer is None:
         raise HTTPException(status_code=503, detail="Model not loaded")
     
+    # Increment prediction counter
+    prediction_counter.inc()
+    
     try:
         # Create input text
         input_text = f"Brand: {request.brand}, Name: {request.product_name}"
         logger.info(f"Generating creative for: {input_text}")
+        
+        # Start inference timer
+        start_time = time.time()
         
         # Tokenize input
         encoding = tokenizer(
@@ -150,7 +174,11 @@ def predict(request: PredictRequest):
         # Decode output
         creative = tokenizer.decode(outputs[0], skip_special_tokens=True)
         
-        logger.info(f"Generated: {creative}")
+        # Record inference duration
+        inference_time = time.time() - start_time
+        inference_duration.observe(inference_time)
+        
+        logger.info(f"Generated in {inference_time:.2f}s: {creative}")
         
         return PredictResponse(
             creative=creative,

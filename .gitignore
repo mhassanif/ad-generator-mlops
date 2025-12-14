@@ -3,14 +3,34 @@ venv
 mlruns/
 mlflow.db
 tokenizer_files/
-data/processed/
+da# Python
+__pycache__/
+*.py[cod]
+venv/
+*.egg-info/
 
-# Airflow & Docker
+# Docker / Airflow
 logs/
-postgres-db-volume/
-mlflow-artifacts/
-*.log
 .dockerignore
+mlruns/
+mlflow/
+
+# Data
+data/raw/*.zip
+
+# IDE
+.vscode/
+.idea/
+
+# Monitoring
+monitoring/grafana-data/
+monitoring/prometheus-data/
+
+# Guides (temporary)
+*_FIX.md
+*_GUIDE.md
+QUICK_FIX.txt
+generate_traffic.shgnore
 
 __pycache__
 .env
