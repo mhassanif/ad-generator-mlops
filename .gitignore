@@ -12,5 +12,5 @@ mlflow-artifacts/
 *.log
 .dockerignore
 
-
+__pycache__
 .env

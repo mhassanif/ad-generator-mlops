@@ -89,10 +89,9 @@ def train(data_dir, epochs=3, batch_size=8, lr=5e-5):
             if not os.path.exists(test_path):
                 raise FileNotFoundError(f"Test data not found at {test_path}")
             
-            # Log the training dataset for versioning (DISABLED due to permission issues)
-            # mlflow.log_artifact(train_path, artifact_path="dataset")
-            # mlflow.log_artifact(test_path, artifact_path="dataset")
-            logging.info("Skipping dataset artifact logging to avoid permissions")
+            # Log the training dataset for versioning
+            mlflow.log_artifact(train_path, artifact_path="dataset")
+            mlflow.log_artifact(test_path, artifact_path="dataset")
             
             # Load Data
             logging.info("Loading tokenizer and datasets...")
@@ -176,6 +175,21 @@ def train(data_dir, epochs=3, batch_size=8, lr=5e-5):
             
             # Save Model to MLflow
             logging.info("Saving model to MLflow...")
+            
+            # Save model with model registry
+            mlflow.pytorch.log_model(
+                model,
+                "model",
+                registered_model_name="ad_creative_t5"
+            )
+            logging.info("Model logged to MLflow Model Registry")
+            
+            # Save tokenizer as artifact
+            tokenizer_dir = "tokenizer_files"
+            os.makedirs(tokenizer_dir, exist_ok=True)
+            tokenizer.save_pretrained(tokenizer_dir)
+            mlflow.log_artifacts(tokenizer_dir, artifact_path="tokenizer")
+            logging.info("Tokenizer logged to MLflow")
             
             logging.info("Training Complete - Metrics logged to MLflow")
             logging.info(f"Run ID: {mlflow.active_run().info.run_id}")
