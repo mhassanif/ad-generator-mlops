@@ -18,6 +18,7 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/src:/opt/airflow/src
     - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/airflow/data
+    - mlflow-data:/mlflow
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -95,6 +96,9 @@ services:
     image: ghcr.io/mlflow/mlflow:latest
     ports:
       - "5001:5000"
+    environment:
+      - MLFLOW_SERVE_ARTIFACTS=true
+      - MLFLOW_SERVER_ALLOWED_HOSTS=*
     command: >
       mlflow server
       --backend-store-uri sqlite:///mlflow/mlflow.db
