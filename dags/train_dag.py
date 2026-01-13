@@ -23,5 +23,5 @@ with DAG(
 
     train_task = BashOperator(
         task_id='train_model',
-        bash_command='cd /opt/airflow && python src/models/train.py --data_dir data/processed --epochs 3 --batch_size 4',
+        bash_command='cd /opt/airflow && python3 -m src.models.train --epochs 3',
     )

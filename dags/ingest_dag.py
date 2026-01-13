@@ -23,5 +23,5 @@ with DAG(
 
     ingest_task = BashOperator(
         task_id='ingest_data',
-        bash_command='cd /opt/airflow && python src/data/ingest.py',
+        bash_command='cd /opt/airflow && python3 -m src.data.ingest',
     )
