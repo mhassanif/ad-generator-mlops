@@ -11,44 +11,8 @@ env:
   API_IMAGE_NAME: ad-creative-api
 
 jobs:
-  # lint-and-test:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: '3.11'
-
-  #     - name: Install dependencies
-  #       run: |
-  #         python -m pip install --upgrade pip
-  #         pip install flake8 black pytest pytest-cov httpx
-  #         # Install minimal requirements for testing
-  #         pip install fastapi uvicorn pydantic prometheus-client
-
-  #     - name: Lint with flake8
-  #       run: |
-  #         # Stop build if there are Python syntax errors or undefined names
-  #         flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
-  #         # Exit-zero treats all errors as warnings
-  #         flake8 src/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-  #     - name: Check code formatting with black
-  #       run: |
-  #         black --check src/ || true
-
-  #     - name: Run tests with pytest
-  #       run: |
-  #         pytest tests/ -v --cov=src --cov-report=term-missing
-
   build-and-push:
-    needs: lint-and-test
     runs-on: ubuntu-latest
-    outputs:
-      image-tag: ${{ steps.meta.outputs.tags }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -86,50 +50,3 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.meta.outputs.digest }}
-
-  security-scan:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.DOCKERHUB_USERNAME }}/${{ env.API_IMAGE_NAME }}:latest
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
-
-  # deploy-to-kubernetes:
-  #   needs: [build-and-push, security-scan]
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/main'
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-  #     - name: Set up kubectl
-  #       uses: azure/setup-kubectl@v3
-  #       with:
-  #         version: 'v1.28.0'
-
-  #     - name: Configure kubectl for DigitalOcean
-  #       run: |
-  #         echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
-  #         kubectl version --client
-
-  #     - name: Update image in deployment
-  #       run: |
-  #         # Update API deployment with new image
-  #         kubectl set image deployment/ad-creative-api \
-  #           ad-creative-api=${{ env.DOCKERHUB_USERNAME }}/${{ env.API_IMAGE_NAME }}:latest \
-  #          -n ad-creative
-
-  #     - name: Wait for rollout
-  #       run: |
-  #         kubectl rollout status deployment/ad-creative-api -n ad-creative --timeout=5m
-
-  #     - name: Verify deployment
-  #       run: |
-  #         kubectl get pods -n ad-creative
-  #         kubectl get svc -n ad-creative
