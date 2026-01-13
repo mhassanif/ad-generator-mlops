@@ -197,7 +197,7 @@ docker-compose restart api
 for i in {1..10}; do curl -s -X POST "http://localhost:8000/predict" \
   -H "Content-Type: application/json" \
   -d '{"brand": "Nike", "product_name": "Shoes"}' > /dev/null; done
-# Check Explore view with: api_predictions_total
+# Check Explore view with: api_predictions_tota
 ```
 ---
 ## Demo Video Link
